@@ -1,0 +1,267 @@
+:root {
+  --forest: #145c45;
+  --leaf: #dcefe4;
+  --ink: #16352b;
+  --muted: #6b7c73;
+  --sand: #f3f1e7;
+}
+
+body {
+  color: var(--ink);
+  background: #f7f9f6 !important;
+}
+
+.site-navbar {
+  background: var(--forest) !important;
+}
+
+.logout-button {
+  border: 0;
+  color: rgb(255 255 255 / 78%);
+  text-decoration: none;
+}
+
+.logout-button:hover,
+.logout-button:focus {
+  color: #fff;
+}
+
+.hero-panel {
+  overflow: hidden;
+  background: linear-gradient(120deg, #edf5e9 0%, #fbf7e9 65%, #e2f0e8 100%);
+}
+
+.hero-panel h1 {
+  max-width: 680px;
+  color: var(--ink);
+  letter-spacing: -0.045em;
+}
+
+.eyebrow {
+  color: #52806b;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+}
+
+.hero-photo {
+  position: relative;
+  display: block;
+  height: 290px;
+  overflow: hidden;
+  background: #dce8dd;
+}
+
+.hero-photo img,
+.destination-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-photo img {
+  object-position: center 55%;
+}
+
+.hero-photo figcaption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 1rem 1.1rem 0.8rem;
+  background: linear-gradient(transparent, rgb(10 28 22 / 78%));
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.hero-photo figcaption a {
+  color: #e1eee5;
+  font-size: 0.68rem;
+  font-weight: 400;
+}
+
+.destination-card {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  background: #dce8dd;
+  color: white;
+  text-decoration: none;
+}
+
+.destination-card::after {
+  position: absolute;
+  inset: 25% 0 0;
+  background: linear-gradient(transparent, rgb(8 25 18 / 82%));
+  content: "";
+}
+
+.destination-card img {
+  transition: transform 220ms ease;
+}
+
+.destination-card:hover img {
+  transform: scale(1.04);
+}
+
+.destination-card-copy {
+  position: absolute;
+  z-index: 1;
+  right: 0.85rem;
+  bottom: 0.8rem;
+  left: 0.85rem;
+}
+
+.destination-card-copy h3 {
+  margin: 0 0 0.15rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.destination-card-copy p {
+  margin: 0;
+  color: rgb(255 255 255 / 88%);
+  font-size: 0.74rem;
+}
+
+.image-credit {
+  padding: 0.3rem 0.15rem 0;
+  color: var(--muted);
+  font-size: 0.62rem;
+}
+
+.image-credit a {
+  color: #547463;
+}
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.search-panel,
+.guide-card {
+  border-radius: 1rem;
+}
+
+.search-panel .form-label {
+  color: #465b50;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.search-panel .form-control,
+.search-panel .form-select {
+  border-color: #dce5dd;
+  border-radius: 0.7rem;
+}
+
+.btn-success {
+  --bs-btn-bg: #217451;
+  --bs-btn-border-color: #217451;
+  --bs-btn-hover-bg: #185e40;
+  --bs-btn-hover-border-color: #185e40;
+}
+
+.guide-card {
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.guide-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1rem 2rem rgb(22 53 43 / 9%) !important;
+}
+
+.guide-rating {
+  color: #a76d16;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.guide-rating small {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.guide-bio {
+  min-height: 3.4rem;
+  color: #52645b;
+  font-size: 0.92rem;
+}
+
+.tag {
+  padding: 0.3rem 0.58rem;
+  border-radius: 99px;
+  background: #eff5ef;
+  color: #456b56;
+  font-size: 0.75rem;
+}
+
+.empty-state,
+.dashboard-welcome {
+  border: 1px solid #e6ece5;
+  background: #fff;
+}
+
+.empty-icon {
+  color: #6d9a7a;
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.price-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid #dce9df;
+  background: #f2f8f3;
+}
+
+.price-summary strong {
+  color: var(--forest);
+  font-size: 1.35rem;
+  white-space: nowrap;
+}
+
+.safety-guidance {
+  border-color: #cfe4f0;
+  border-radius: 0.9rem;
+}
+
+.booking-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.review-card {
+  border-radius: 1rem;
+}
+
+.review-stars {
+  color: #bd801b;
+  letter-spacing: 0.08em;
+}
+
+.guide-reply {
+  border-left: 3px solid #78a98a;
+  background: #f1f7f2;
+}
+
+@media (max-width: 575.98px) {
+  .hero-panel h1 {
+    font-size: 2.35rem;
+  }
+
+  .hero-photo {
+    height: 210px;
+  }
+}

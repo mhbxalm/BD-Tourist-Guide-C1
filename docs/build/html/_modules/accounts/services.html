@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>accounts.services &#8212; BD Tourist Guide 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for accounts.services</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.conf</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.mail</span><span class="w"> </span><span class="kn">import</span> <span class="n">send_mail</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">transaction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timezone</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">BookingRequest</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="expire_pending_booking_requests">
+<a class="viewcode-back" href="../../api.html#accounts.services.expire_pending_booking_requests">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">expire_pending_booking_requests</span><span class="p">(</span><span class="n">now</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Expire overdue pending bookings and notify each affected traveler once.</span>
+
+<span class="sd">    The service rechecks every candidate under a database lock so a request that</span>
+<span class="sd">    was answered concurrently is not overwritten. Email delivery happens after</span>
+<span class="sd">    the database transactions complete.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        now: Optional timezone-aware timestamp to use as the current time. The</span>
+<span class="sd">            current Django time is used when this value is omitted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The number of booking requests changed to the expired state.</span>
+<span class="sd">    """</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">now</span> <span class="ow">or</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">expiry_cutoff</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+    <span class="n">candidate_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">BookingRequest</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">BookingRequest</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
+        <span class="n">created_at__lte</span><span class="o">=</span><span class="n">expiry_cutoff</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">"pk"</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">expired_notifications</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">booking_id</span> <span class="ow">in</span> <span class="n">candidate_ids</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">transaction</span><span class="o">.</span><span class="n">atomic</span><span class="p">():</span>
+            <span class="n">booking</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">BookingRequest</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_for_update</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s2">"traveler"</span><span class="p">,</span> <span class="s2">"guide_application"</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">pk</span><span class="o">=</span><span class="n">booking_id</span><span class="p">,</span>
+                    <span class="n">status</span><span class="o">=</span><span class="n">BookingRequest</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
+                    <span class="n">created_at__lte</span><span class="o">=</span><span class="n">expiry_cutoff</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">booking</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">booking</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">BookingRequest</span><span class="o">.</span><span class="n">Status</span><span class="o">.</span><span class="n">EXPIRED</span>
+            <span class="n">booking</span><span class="o">.</span><span class="n">responded_at</span> <span class="o">=</span> <span class="n">now</span>
+            <span class="n">booking</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">update_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">"status"</span><span class="p">,</span> <span class="s2">"responded_at"</span><span class="p">,</span> <span class="s2">"updated_at"</span><span class="p">])</span>
+            <span class="n">expired_notifications</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">booking</span><span class="o">.</span><span class="n">traveler</span><span class="o">.</span><span class="n">email</span><span class="p">,</span> <span class="n">booking</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span> <span class="n">booking</span><span class="o">.</span><span class="n">guide_application</span><span class="o">.</span><span class="n">full_name</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">traveler_email</span><span class="p">,</span> <span class="n">booking_id</span><span class="p">,</span> <span class="n">guide_name</span> <span class="ow">in</span> <span class="n">expired_notifications</span><span class="p">:</span>
+        <span class="n">sent</span> <span class="o">=</span> <span class="n">send_mail</span><span class="p">(</span>
+            <span class="n">subject</span><span class="o">=</span><span class="s2">"Your guide booking request has expired"</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Your request to </span><span class="si">{</span><span class="n">guide_name</span><span class="si">}</span><span class="s2"> was not answered within 24 hours, "</span>
+                <span class="s2">"so it has expired. You can choose another available guide or date."</span>
+            <span class="p">),</span>
+            <span class="n">from_email</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">DEFAULT_FROM_EMAIL</span><span class="p">,</span>
+            <span class="n">recipient_list</span><span class="o">=</span><span class="p">[</span><span class="n">traveler_email</span><span class="p">],</span>
+            <span class="n">fail_silently</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sent</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">"Booking expiry notification could not be sent: booking_id=</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+                <span class="n">booking_id</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">expired_notifications</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">BD Tourist Guide</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Project guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows.html">User Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_model.html">Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Python API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, BD Tourist Guide Project Team.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

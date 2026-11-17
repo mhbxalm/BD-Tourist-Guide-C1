@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>User Workflows &#8212; BD Tourist Guide 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Model" href="data_model.html" />
+    <link rel="prev" title="Architecture" href="architecture.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="user-workflows">
+<h1>User Workflows<a class="headerlink" href="#user-workflows" title="Link to this heading">¶</a></h1>
+<section id="browse-and-search">
+<h2>Browse and search<a class="headerlink" href="#browse-and-search" title="Link to this heading">¶</a></h2>
+<p>Visitors can browse the homepage and search verified guides without signing in.
+The shared search context filters by destination, date, language, specialty,
+daily price range, and minimum rating. Results can be ordered by rating, price,
+or completed tours.</p>
+</section>
+<section id="registration-and-email-verification">
+<h2>Registration and email verification<a class="headerlink" href="#registration-and-email-verification" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>A visitor submits an email address, name, and password through the
+registration form.</p></li>
+<li><p>Django validates the input and creates a traveler account whose email is
+not yet verified.</p></li>
+<li><p>The application sends a time-sensitive verification link. In development,
+the console email backend prints the link in the <code class="docutils literal notranslate"><span class="pre">runserver</span></code> terminal.</p></li>
+<li><p>A valid link marks the address as verified. Invalid or expired tokens are
+rejected.</p></li>
+<li><p>Unverified users can continue to browse; booking requests require verified
+email.</p></li>
+</ol>
+</section>
+<section id="guide-application-and-administrator-review">
+<h2>Guide application and administrator review<a class="headerlink" href="#guide-application-and-administrator-review" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>An authenticated user submits a guide profile, photo, and identity document.</p></li>
+<li><p>The application is stored in the <code class="docutils literal notranslate"><span class="pre">pending</span></code> state.</p></li>
+<li><p>An administrator can view the submitted records and protected documents.</p></li>
+<li><p>The administrator approves or rejects the application. Each decision is
+written to <code class="docutils literal notranslate"><span class="pre">GuideDecisionLog</span></code> with the administrator and decision time.</p></li>
+<li><p>Only verified guide applications appear in public search and accept booking
+requests.</p></li>
+</ol>
+</section>
+<section id="booking-lifecycle">
+<h2>Booking lifecycle<a class="headerlink" href="#booking-lifecycle" title="Link to this heading">¶</a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>PENDING --guide accepts--&gt; CONFIRMED --guide completes trip--&gt; COMPLETED
+   |                            |
+   +--guide declines--&gt; DECLINED
+   +--24-hour timeout--&gt; EXPIRED
+</pre></div>
+</div>
+<p>Before a request is saved, the application checks the traveler’s email status,
+guide verification, date range, per-date availability, group-size limit, and
+conflicting requests. It stores a price snapshot so later rate changes do not
+change an existing booking. The guide accepts or declines a pending request;
+the traveler receives a notification.</p>
+<p>After completion, the traveler may submit one review for the booking. The
+application updates the guide’s average rating and review count. A guide may
+then post one public reply to that review.</p>
+</section>
+<section id="request-expiry">
+<h2>Request expiry<a class="headerlink" href="#request-expiry" title="Link to this heading">¶</a></h2>
+<p>Pending requests expire after 24 hours. The expiry service rechecks each
+candidate inside a database transaction before changing its status and
+notifying the traveler. Dashboard and booking-page visits process overdue
+requests. For unattended processing, schedule:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python manage.py expire_booking_requests</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">BD Tourist Guide</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Project guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User Workflows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#browse-and-search">Browse and search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#registration-and-email-verification">Registration and email verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#guide-application-and-administrator-review">Guide application and administrator review</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#booking-lifecycle">Booking lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#request-expiry">Request expiry</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Python API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="architecture.html" title="previous chapter">Architecture</a></li>
+      <li>Next: <a href="data_model.html" title="next chapter">Data Model</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, BD Tourist Guide Project Team.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/workflows.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>BD Tourist Guide Documentation &#8212; BD Tourist Guide 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting Started" href="getting_started.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="bd-tourist-guide-documentation">
+<h1>BD Tourist Guide Documentation<a class="headerlink" href="#bd-tourist-guide-documentation" title="Link to this heading">¶</a></h1>
+<p>BD Tourist Guide is a Django web application that connects travelers with
+verified local guides in Bangladesh. Visitors can browse destinations and
+search public guide profiles. Registered travelers can request guides, while
+approved guides manage availability, respond to requests, and review trip
+feedback.</p>
+<p>This documentation covers local setup, the Django MTV architecture, the main
+user workflows and data model, and selected Python APIs generated from source
+docstrings.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Project guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#build-the-documentation">Build the documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#documentation-format">Documentation format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#mysql-configuration">MySQL configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#architectural-pattern">Architectural pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#component-responsibilities">Component responsibilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#request-lifecycle">Request lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#why-mtv-fits-this-project">Why MTV fits this project</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">User Workflows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#browse-and-search">Browse and search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#registration-and-email-verification">Registration and email verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#guide-application-and-administrator-review">Guide application and administrator review</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#booking-lifecycle">Booking lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#request-expiry">Request expiry</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data_model.html#important-rules">Important rules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Python API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#booking-expiry-service">Booking expiry service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#guide-search">Guide search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#public-homepage">Public homepage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#dashboard">Dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#registration-and-verification">Registration and verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#guide-application">Guide application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#booking-workflows">Booking workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#reviews">Reviews</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#core-domain-models">Core domain models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#forms">Forms</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">BD Tourist Guide</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Project guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">User Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Python API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="getting_started.html" title="next chapter">Getting Started</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, BD Tourist Guide Project Team.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Apply as a guide | BD Tourist Guide{% endblock %}
+{% block content %}
+<div class="card shadow-sm mx-auto" style="max-width: 760px"><div class="card-body p-4">
+  <h1 class="h3">Apply to become a guide</h1>
+  <p class="text-secondary">Your identity documents are only available to authorized administrators during review.</p>
+  <form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+    {% for field in form %}<div class="mb-3"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}</div>{% endfor %}
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+    <button class="btn btn-success" type="submit">Submit application</button>
+  </form>
+</div></div>
+<script>document.querySelectorAll('input:not([type=file]), textarea').forEach((field) => field.classList.add('form-control')); document.querySelectorAll('input[type=file]').forEach((field) => field.classList.add('form-control'));</script>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Booking request #{{ booking.pk }} | BD Tourist Guide{% endblock %}
+{% block content %}
+<div class="card border-0 shadow-sm mx-auto" style="max-width: 720px"><div class="card-body p-4 p-lg-5">
+  <span class="eyebrow">REQUEST SENT</span><h1 class="h3 mt-2">Your request is with {{ booking.guide_application.full_name }}</h1><p class="text-secondary">The guide has been notified. Your request will expire if it is not answered within 24 hours.</p>
+  <div class="booking-status mt-4 mb-4"><span class="badge text-bg-warning">{{ booking.get_status_display }}</span><span class="small text-secondary">Request #{{ booking.pk }}</span></div>
+  <dl class="row mb-4"><dt class="col-sm-4">Dates</dt><dd class="col-sm-8">{{ booking.start_date|date:"M j, Y" }}{% if booking.end_date != booking.start_date %} – {{ booking.end_date|date:"M j, Y" }}, {{ booking.number_of_days }} days{% endif %}</dd><dt class="col-sm-4">Group size</dt><dd class="col-sm-8">{{ booking.group_size }}</dd><dt class="col-sm-4">Meeting place</dt><dd class="col-sm-8">{{ booking.meeting_place }}</dd><dt class="col-sm-4">Total price</dt><dd class="col-sm-8 fw-bold">BDT {{ booking.total_price }}</dd>{% if booking.notes %}<dt class="col-sm-4">Notes</dt><dd class="col-sm-8">{{ booking.notes|linebreaksbr }}</dd>{% endif %}</dl>
+  {% if booking.status == "completed" and not review %}<a class="btn btn-success" href="{% url 'accounts:submit_guide_review' booking.pk %}">Rate and review this guide</a>{% elif review %}<a class="btn btn-outline-success" href="{% url 'accounts:guide_reviews' booking.guide_application_id %}">View your published review</a>{% endif %} <a class="btn btn-outline-success" href="{% url 'accounts:dashboard' %}">Back to dashboard</a>
+</div></div>
+{% endblock %}

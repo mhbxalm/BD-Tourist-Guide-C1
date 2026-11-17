@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Explore Bangladesh | BD Tourist Guide{% endblock %}
+{% block content %}
+<section class="hero-panel rounded-4 p-4 p-lg-5 mb-5">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-7">
+      <span class="eyebrow">LOCAL KNOWLEDGE, BETTER JOURNEYS</span>
+      <h1 class="display-4 fw-bold mt-3">Bangladesh is better with a local.</h1>
+      <p class="lead text-secondary mt-3">Explore places, people, and stories with verified local guides who know the way.</p>
+      {% if not user.is_authenticated %}<a class="btn btn-success btn-lg mt-2" href="{% url 'accounts:register' %}">Join as a traveler</a>{% endif %}
+    </div>
+    <div class="col-lg-5"><figure class="hero-photo rounded-4 mb-0"><img src="{% static 'image/destinations/cox_bazar.jpeg' %}" alt="Evening light on Cox’s Bazar sea beach" fetchpriority="high"><figcaption><span>Evening at Cox’s Bazar</span></figcaption></figure></div>
+  </div>
+</section>
+
+<section id="find-guides" class="mb-5">
+  <div class="section-heading mb-3"><div><span class="eyebrow">PLAN YOUR TRIP</span><h2 class="h3 mt-1">Find your guide</h2></div><span class="text-secondary small">Browse verified local guides</span></div>
+  {% include "accounts/guide_search_panel.html" %}
+</section>
+
+<section class="mb-5">
+  <div class="section-heading mb-3"><div><span class="eyebrow">START EXPLORING</span><h2 class="h3 mt-1">Popular destinations</h2></div></div>
+  <div class="row g-3">{% for place in popular_destinations %}<div class="col-sm-6 col-lg-4 col-xl"><a class="destination-card d-block" href="?destination={{ place.name|urlencode }}#find-guides"><img src="{% static place.image %}" alt="Scenery from {{ place.name }}" loading="lazy"><div class="destination-card-copy"><h3>{{ place.name }}</h3><p>{{ place.description }}</p></div></a></div>{% endfor %}</div>
+</section>
+{% endblock %}

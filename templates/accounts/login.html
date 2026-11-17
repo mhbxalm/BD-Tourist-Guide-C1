@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Log in | BD Tourist Guide{% endblock %}
+{% block content %}
+<div class="card shadow-sm mx-auto" style="max-width: 520px"><div class="card-body p-4">
+  <h1 class="h3 mb-3">Log in</h1>
+  {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+  <form method="post">{% csrf_token %}
+    <div class="mb-3"><label class="form-label" for="id_username">Email</label><input class="form-control" id="id_username" name="username" type="email" required></div>
+    <div class="mb-3"><label class="form-label" for="id_password">Password</label><input class="form-control" id="id_password" name="password" type="password" required></div>
+    <button class="btn btn-success w-100" type="submit">Log in</button>
+  </form>
+  <p class="mt-3 mb-0"><a href="{% url 'accounts:password_reset' %}">Forgot password?</a></p>
+</div></div>
+{% endblock %}

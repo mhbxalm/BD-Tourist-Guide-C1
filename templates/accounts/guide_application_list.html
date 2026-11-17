@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Guide applications | BD Tourist Guide{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Pending guide applications</h1>
+{% if applications %}<div class="list-group">{% for application in applications %}<a class="list-group-item list-group-item-action" href="{% url 'accounts:guide_application_review' application.pk %}"><div class="d-flex justify-content-between"><strong>{{ application.full_name }}</strong><span class="badge text-bg-warning">Pending</span></div><div class="text-secondary">{{ application.user.email }} · {{ application.areas_covered }} · {{ application.created_at|date:"M j, Y" }}</div></a>{% endfor %}</div>{% else %}<div class="alert alert-info">There are no applications waiting for review.</div>{% endif %}
+{% endblock %}
