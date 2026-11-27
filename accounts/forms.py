@@ -270,8 +270,15 @@ class GuideReplyForm(forms.Form):
         return guide_reply
 
 
-class GuideAvailabilityDateForm(forms.Form):
-    available_date = forms.DateField(
+class GuideAvailabilityRangeForm(forms.Form):
+    """Validate an inclusive range of dates a guide is available."""
+
+    start_date = forms.DateField(
+        widget=forms.DateInput(
+            attrs={"type": "date", "class": "form-control"}
+        )
+    )
+    end_date = forms.DateField(
         widget=forms.DateInput(
             attrs={"type": "date", "class": "form-control"}
         )
@@ -279,13 +286,29 @@ class GuideAvailabilityDateForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["available_date"].widget.attrs["min"] = timezone.localdate().isoformat()
+        minimum_date = timezone.localdate().isoformat()
+        self.fields["start_date"].widget.attrs["min"] = minimum_date
+        self.fields["end_date"].widget.attrs["min"] = minimum_date
 
-    def clean_available_date(self):
-        available_date = self.cleaned_data["available_date"]
-        if available_date < timezone.localdate():
-            raise forms.ValidationError("Choose today or a future date.")
-        return available_date
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+        today = timezone.localdate()
+
+        if start_date and start_date < today:
+            self.add_error("start_date", "Choose today or a future date.")
+        if end_date and end_date < today:
+            self.add_error("end_date", "Choose today or a future date.")
+        if start_date and end_date:
+            if end_date < start_date:
+                self.add_error(
+                    "end_date", "End date must be on or after the start date."
+                )
+            elif (end_date - start_date).days >= 90:
+                self.add_error("end_date", "Choose a date range of 90 days or fewer.")
+
+        return cleaned_data
 
 
 class UserProfileForm(forms.ModelForm):

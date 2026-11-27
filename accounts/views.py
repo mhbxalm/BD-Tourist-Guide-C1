@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
 from django.conf import settings
@@ -17,7 +18,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 from .forms import (
     GuideApplicationForm,
-    GuideAvailabilityDateForm,
+    GuideAvailabilityRangeForm,
     GuideBookingRequestForm,
     GuideReplyForm,
     GuideReviewForm,
@@ -138,32 +139,53 @@ def manage_guide_availability(request):
         user=request.user,
         status=GuideApplication.Status.VERIFIED,
     )
-    form = GuideAvailabilityDateForm(request.POST or None)
+    form = GuideAvailabilityRangeForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        available_date = form.cleaned_data["available_date"]
+        start_date = form.cleaned_data["start_date"]
+        end_date = form.cleaned_data["end_date"]
+        dates = [
+            start_date + timedelta(days=offset)
+            for offset in range((end_date - start_date).days + 1)
+        ]
+        created_count = 0
+        existing_count = 0
         with transaction.atomic():
             GuideApplication.objects.select_for_update().get(pk=guide.pk)
             has_booking = BookingRequest.objects.filter(
                 guide_application=guide,
                 status__in=[BookingRequest.Status.PENDING, BookingRequest.Status.CONFIRMED],
-                start_date__lte=available_date,
-                end_date__gte=available_date,
+                start_date__lte=end_date,
+                end_date__gte=start_date,
             ).exists()
             if has_booking:
                 form.add_error(
-                    "available_date",
-                    "You have a pending or confirmed booking on this date.",
+                    None,
+                    "This range overlaps a pending or confirmed booking. "
+                    "Choose another range.",
                 )
             else:
-                _, created = GuideAvailability.objects.get_or_create(
-                    guide_application=guide,
-                    available_date=available_date,
-                )
+                for available_date in dates:
+                    _, created = GuideAvailability.objects.get_or_create(
+                        guide_application=guide,
+                        available_date=available_date,
+                    )
+                    if created:
+                        created_count += 1
+                    else:
+                        existing_count += 1
         if not form.errors:
-            if created:
-                messages.success(request, "Availability date added.")
+            if created_count and existing_count:
+                messages.success(
+                    request,
+                    f"Added {created_count} dates. {existing_count} were already on your calendar.",
+                )
+            elif created_count:
+                messages.success(
+                    request,
+                    f"Added {created_count} available date{'s' if created_count != 1 else ''}.",
+                )
             else:
-                messages.info(request, "That date is already on your availability calendar.")
+                messages.info(request, "Those dates are already on your availability calendar.")
             return redirect("accounts:manage_guide_availability")
 
     today = timezone.localdate()
